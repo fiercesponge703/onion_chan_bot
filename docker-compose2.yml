@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Контейнер 1: pgAdmin (внешняя подсеть)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    networks:
+      - external_net
+      - internal_net
+    restart: unless-stopped
+
+  # Контейнер 2: phpMyAdmin (внешняя подсеть)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - "8080:80"
+    networks:
+      - external_net
+      - internal_net
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+
+  # Контейнер 3: PostgreSQL (внутренняя подсеть)
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: mydatabase
+      POSTGRES_HOST_AUTH_METHOD: md5
+    networks:
+      internal_net:
+        ipv4_address: 192.168.21.10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Контейнер 4: MariaDB (внутренняя подсеть)
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+      MYSQL_DATABASE: mydatabase
+    networks:
+      internal_net:
+        ipv4_address: 192.168.21.20
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mariadb_data:
+
+networks:
+  external_net:
+    driver: bridge
+    name: external_network
+  
+  internal_net:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: "192.168.21.0/24"
+          gateway: "192.168.21.1"
