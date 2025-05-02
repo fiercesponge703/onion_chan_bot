@@ -7,9 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import httpx
 # Конфигурация
-BOT_TOKEN = "7149690988:AAFySXxOVrBH2BWo_awzn7hM7lK47qxCmrY"
-GROUP_CHAT_ID = -1001896446888
-UNSPLASH_API_KEY = "Wd48Mzv3Yn8U9hlQYkAlhkZHFc_PSCopZ2N81SUUHsY"  # Ваш ключ
+
 # Настройка логов
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
